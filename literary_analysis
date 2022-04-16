@@ -1,0 +1,33 @@
+import nltk
+nltk.download("punkt", "stopwords")
+from nltk.corpus import stopwords as S
+from nltk import tokenize as T
+import re
+import pandas as pd
+from collections import Counter
+
+
+#open the text
+def opener(title, source):
+    return open(source+title+".txt", "r").read()
+
+#tokenize words 
+def tokenize_words(title):
+    words = T.word_tokenize(opener(title).replace('\n', ' ').lower())
+    return [w for w in words if w not in S.words("english")]
+
+#get rid of punctuations
+def clean_words(title):
+    return [w for w in tokenize_words(title) if w not in [".", ",", "?", "!", "-", "“", "”", "--", "’","‘" ,":", ";", "(", ")"]]
+
+#create dataframe with unique word count value
+def all_unique_count (title):
+    words_unique = Counter(clean_words(title))
+    title_df = pd.DataFrame(words_unique.items()).rename(columns={0:'word', 1:'count'})
+    return title_df.sort_values(by='count', ascending = False)
+
+#count unique words in the text
+def word_count(words, title):
+    text = all_unique_count(title)
+    analyzed_text = text[text['word'].isin(words)].sort_values(by='count', ascending = False)
+    return analyzed_text
